@@ -26,7 +26,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -974,3 +974,57 @@ class ImportFileViewSet(viewsets.ViewSet):
             }
 
         }
+
+    @api_endpoint_class
+    @ajax_request_class
+    @has_perm_class('requires_member')
+    @list_route(methods=['POST'])
+    def bayren_geojson(self, request):
+        """
+        Allows upload of BayRen geojson formatted data that includes building definitions
+        ---
+        parameters:
+            - name: post_data
+              description: the payload to send with this POST
+              required: true
+              paramType: body
+        """
+        our_properties = []
+        bad_property_ids = []
+        props = request.data['features']
+        for prop in props:
+            this_prop_id = prop['id']
+            extra_props = prop['properties']
+            this_prop_address = ImportFileViewSet._build_address(this_prop_id, extra_props)
+            if this_prop_address:
+                footprint_coordinates = prop['geometry']['coordinates']
+                our_properties.append(OurProperty(this_prop_id, this_prop_address, extra_props, footprint_coordinates))
+                print("Added property id {} with address {}".format(this_prop_id, this_prop_address))
+            else:
+                bad_property_ids.append(this_prop_id)
+                continue
+        return JsonResponse({
+            'status': 'success',
+            'number_of_successful_property_imports': len(our_properties),
+            'invalid_address_property_ids': bad_property_ids,
+        })
+
+    @staticmethod
+    def _build_address(prop_id, extra_property_data):
+        try:
+            from_street_number = extra_property_data['From Street Number']
+            # to_street_number = extra_property_data['To Street Number']
+            street_name = extra_property_data['Street Name']
+            street_type = extra_property_data['Street Name Post Type']
+            return "{} {} {}".format(from_street_number, street_name, street_type)
+        except KeyError as key:
+            print("***ERROR: ID={}; Could not find key: {}".format(prop_id, key.message))
+            return None
+
+
+class OurProperty:
+    def __init__(self, prop_id, prop_address, extra_data, footprint):
+        self.prop_id = prop_id
+        self.address = prop_address
+        self.extra_data = extra_data
+        self.footprint = footprint
