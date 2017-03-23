@@ -8,7 +8,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from api.views import test_view_with_arg, TestReverseViewSet
-from seed.data_importer.views import ImportFileViewSet
+from seed.data_importer.views import ImportFileViewSet, BayrenBricrViewSet
 from seed.data_importer.views import (
     handle_s3_upload_complete,
     get_upload_details,
@@ -27,6 +27,7 @@ from seed.views.properties import PropertyViewSet, TaxLotViewSet
 from seed.views.users import UserViewSet
 
 api_v2_router = routers.DefaultRouter()
+api_v2_router.register(r'bayren', BayrenBricrViewSet, base_name="bayren")
 api_v2_router.register(r'columns', ColumnViewSet, base_name="columns")
 api_v2_router.register(r'column_mappings', ColumnMappingViewSet, base_name="column_mappings")
 api_v2_router.register(r'datasets', DatasetViewSet, base_name="datasets")

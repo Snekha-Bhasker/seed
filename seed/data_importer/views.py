@@ -42,7 +42,8 @@ from seed.data_importer.models import ROW_DELIMITER
 from seed.data_importer.tasks import (
     map_data,
     match_buildings,
-    save_raw_data as task_save_raw
+    save_raw_data as task_save_raw,
+    pair_new_states,
 )
 from seed.decorators import ajax_request, ajax_request_class
 from seed.decorators import get_prog_key
@@ -72,6 +73,7 @@ from seed.models import (
     TaxLotProperty)
 from seed.utils.api import api_endpoint, api_endpoint_class
 from seed.utils.cache import get_cache_raw, get_cache
+from seed.views.properties import pair_unpair_property_taxlot
 
 _log = logging.getLogger(__name__)
 
@@ -1486,6 +1488,11 @@ class ImportFileViewSet(viewsets.ViewSet):
             }
         }
 
+
+class BayrenBricrViewSet(viewsets.ViewSet):
+    raise_exception = True
+    authentication_classes = (SessionAuthentication, SEEDAuthentication)
+
     @api_endpoint_class
     @ajax_request_class
     @has_perm_class('requires_member')
@@ -1499,26 +1506,118 @@ class ImportFileViewSet(viewsets.ViewSet):
               description: the payload to send with this POST
               required: true
               paramType: body
+            - name: applicable_year
+              description: year of this data
+              required: true
+              paramType: int
+            - name: organization_id
+              description: The organization ID
+              required: true
+              paramType: query
         """
+        from datetime import datetime
+        org_id = int(request.query_params['organization_id'])
+
+        # set up some columns
+        c, created = Column.objects.get_or_create(organization_id=org_id, column_name="Site Perimeter")
+        if created:
+            c.is_extra_data = True
+
+        # let's just use a dummy cycle
+        cycle, _ = Cycle.objects.get_or_create(organization_id=org_id, name="MyNewCycle", start=datetime.now(), end=datetime.now())
+
+        # then start bringing the data in
         our_properties = []
         bad_property_ids = []
         props = request.data['features']
         for prop in props:
             this_prop_id = prop['id']
             extra_props = prop['properties']
-            this_prop_address = ImportFileViewSet._build_address(this_prop_id, extra_props)
-            if this_prop_address:
-                footprint_coordinates = prop['geometry']['coordinates']
-                our_properties.append(OurProperty(this_prop_id, this_prop_address, extra_props, footprint_coordinates))
-                print("Added property id {} with address {}".format(this_prop_id, this_prop_address))
-            else:
-                bad_property_ids.append(this_prop_id)
-                continue
+
+            # "id": 42142,
+            # "type": "Feature",
+            # "properties": {
+            #   "Building Identifier": 42142,
+            #   "Area Identifier": 42142,
+            #   "Assessor parcel number": "SF1763025",
+            #   "Building Height": 5,
+            #   "Building Perimeter": 62,
+            #   "Building Footprint Floor Area": 160,
+            #   "From Street Number": 1374,
+            #   "To Street Number": 1376,
+            #   "Street Name": "09TH",
+            #   "Street Name Post Type": "AVE",
+            #   "Occupancy Classification": "RETAIL/ENT",
+            #   "Gross Floor Area": 684,
+            #   "Completed Construction Status Date": 1900,
+            #   "Total Commercial Footprint Floor Area": 2375,
+            #   "Retail; Entertainment (RETAIL) Footprint Floor Area": 2375,
+            #   "Site Perimeter": 289,
+            #   "Site Footprint Floor Area": 2975,
+            #   "Property Class Code": "C",
+            #   "Neighborhood Code": "02F",
+            #   "Kitchen Built-ins": 0,
+            #   "Construction Type": "D",
+            #   "Base Lot": "000",
+            #   "Zoning Code": "NC2",
+            #   "Appraiser Identifier": "592",
+            #   "Characteristics Modified Date": 9908,
+            #   "Number of Floors": 1,
+            #   "Number of Units": 2,
+            #   "Number of Rooms": 6,
+            #   "Number of Bathrooms": 2
+            # },
+
+            # create the address
+            this_prop_address = BayrenBricrViewSet._build_address(this_prop_id, extra_props)
+
+            # create the property state and ultimately the property view instance
+            ps = PropertyState.objects.create(organization_id=org_id)
+            ps.address_line_1 = this_prop_address
+            ps.jurisdiction_property_id = prop['properties']["Building Identifier"]
+            ps.city = "San Francisco"
+            ps.gross_floor_area = prop['properties']["Gross Floor Area"]
+            ps.extra_data = extra_props
+            ps.extra_data['from_bayren'] = True
+            pv = ps.promote(cycle)
+
+            # create the taxlot state and ultimately the taxlot view instance
+            tl = TaxLotState.objects.create(organization_id=org_id)
+            tl.extra_data = {}
+            tv = tl.promote(cycle)
+
+            # pair taxlot view with the propertyview
+            pair_unpair_property_taxlot(pv.id, tv.id, 2, True)
+
         return JsonResponse({
             'status': 'success',
             'number_of_successful_property_imports': len(our_properties),
             'invalid_address_property_ids': bad_property_ids,
         })
+
+    @api_endpoint_class
+    @ajax_request_class
+    @has_perm_class('requires_member')
+    @list_route(methods=['GET'])
+    def buildingsync_from_bayren(self, request):
+        """
+        Retrieves any bayren properties in building sync form
+        ---
+        parameter_strategy: override
+        parameters:
+            - name: organization_id
+              description: The organization ID
+              required: true
+              paramType: query
+        """
+        org_id = int(request.query_params['organization_id'])
+        return_props = []
+        for prop in PropertyView.objects.all():
+            this_prop_state = prop.state
+            if this_prop_state.organization_id == org_id:
+                if 'from_bayren' in this_prop_state.extra_data:
+                    return_props.append({'building_id': this_prop_state.extra_data['Building Identifier']})
+        return JsonResponse({'success': 'true', 'properties': return_props})
 
     @staticmethod
     def _build_address(prop_id, extra_property_data):
@@ -1531,11 +1630,3 @@ class ImportFileViewSet(viewsets.ViewSet):
         except KeyError as key:
             print("***ERROR: ID={}; Could not find key: {}".format(prop_id, key.message))
             return None
-
-
-class OurProperty:
-    def __init__(self, prop_id, prop_address, extra_data, footprint):
-        self.prop_id = prop_id
-        self.address = prop_address
-        self.extra_data = extra_data
-        self.footprint = footprint
