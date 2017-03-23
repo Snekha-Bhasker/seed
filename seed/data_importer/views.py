@@ -1509,7 +1509,7 @@ class BayrenBricrViewSet(viewsets.ViewSet):
             - name: applicable_year
               description: year of this data
               required: true
-              paramType: int
+              paramType: query
             - name: organization_id
               description: The organization ID
               required: true
@@ -1517,6 +1517,7 @@ class BayrenBricrViewSet(viewsets.ViewSet):
         """
         from datetime import datetime
         org_id = int(request.query_params['organization_id'])
+        year = request.query_params['applicable_year']
 
         # set up some columns
         c, created = Column.objects.get_or_create(organization_id=org_id, column_name="Site Perimeter")
@@ -1524,15 +1525,29 @@ class BayrenBricrViewSet(viewsets.ViewSet):
             c.is_extra_data = True
 
         # let's just use a dummy cycle
-        cycle, _ = Cycle.objects.get_or_create(organization_id=org_id, name="MyNewCycle", start=datetime.now(), end=datetime.now())
+        cycle, _ = Cycle.objects.get_or_create(
+            organization_id=org_id,
+            name="BayRenCycle-%s" % year,
+            start=datetime.now(),
+            end=datetime.now()
+        )
 
         # then start bringing the data in
-        our_properties = []
-        bad_property_ids = []
         props = request.data['features']
+        num_success = 0
+        num_missing_id = 0
         for prop in props:
+            if 'id' not in prop:
+                num_missing_id += 1
+                continue
+            if 'properties' not in props:
+                continue
             this_prop_id = prop['id']
             extra_props = prop['properties']
+            if "Building Identifier" not in extra_props:
+                continue
+            if "Gross Floor Area" not in extra_props:
+                continue
 
             # "id": 42142,
             # "type": "Feature",
@@ -1574,9 +1589,9 @@ class BayrenBricrViewSet(viewsets.ViewSet):
             # create the property state and ultimately the property view instance
             ps = PropertyState.objects.create(organization_id=org_id)
             ps.address_line_1 = this_prop_address
-            ps.jurisdiction_property_id = prop['properties']["Building Identifier"]
+            ps.jurisdiction_property_id = extra_props["Building Identifier"]
             ps.city = "San Francisco"
-            ps.gross_floor_area = prop['properties']["Gross Floor Area"]
+            ps.gross_floor_area = extra_props["Gross Floor Area"]
             ps.extra_data = extra_props
             ps.extra_data['from_bayren'] = True
             pv = ps.promote(cycle)
@@ -1588,11 +1603,13 @@ class BayrenBricrViewSet(viewsets.ViewSet):
 
             # pair taxlot view with the propertyview
             pair_unpair_property_taxlot(pv.id, tv.id, 2, True)
+            num_success += 1
 
         return JsonResponse({
             'status': 'success',
-            'number_of_successful_property_imports': len(our_properties),
-            'invalid_address_property_ids': bad_property_ids,
+            'attemptedImports': len(props),
+            'numSuccessfulImports': num_success,
+            'numMissingIdFields': num_missing_id,
         })
 
     @api_endpoint_class
@@ -1630,3 +1647,31 @@ class BayrenBricrViewSet(viewsets.ViewSet):
         except KeyError as key:
             print("***ERROR: ID={}; Could not find key: {}".format(prop_id, key.message))
             return None
+
+    @api_endpoint_class
+    @ajax_request_class
+    @has_perm_class('requires_member')
+    @list_route(methods=['DELETE'])
+    def danger_reset_properties(self, request):
+        """
+        Deletes all propertyviews, states, etc., for quick reset for bayren import testing
+        ---
+        parameter_strategy: override
+        parameters:
+            - name: you_freaking_sure
+              description: A flag saying you are really sure about resetting all this, set to YES if you are sure
+              required: true
+              paramType: query
+        """
+        if request.query_params['you_freaking_sure'] == "YES":
+            try:
+                PropertyView.objects.all().delete()
+                PropertyState.objects.all().delete()
+                TaxLotView.objects.all().delete()
+                TaxLotState.objects.all().delete()
+                TaxLotProperty.objects.all().delete()
+            except:
+                return JsonResponse({"status": "failed", "message": "Could not delete all the things"})
+        else:
+            return JsonResponse({"status": "nothing", "message": "you_freaking_sure was not YES, so I did nothing"})
+        return JsonResponse({"status": "success"})
