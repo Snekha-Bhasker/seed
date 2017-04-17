@@ -57,12 +57,22 @@ describe('When I visit the the parent org', function () {
         myOptions.click();
         expect($('.table_list_container').isPresent()).toBe(true);
     });
+
     it('should create new cycle', function () {
-        $('[ng-model="new_cycle.name"]').sendKeys(browser.params.testOrg.cycle);
+        $('[ng-model="new_cycle.name"]').sendKeys('faketest121212');
         $('[ng-model="new_cycle.start"]').sendKeys('01-01-2017');
         $('[ng-model="new_cycle.end"]').sendKeys('12-31-2017');
         $('#btnCreateCycle').click();
-        
+    });    
+    
+    it('should edit created cycle', function () {
+        $$('.btn-default.btn-rowform').last().click();
+        var editCycle = $$('.editable-wrap.editable-text').first();
+        editCycle.$('.ng-not-empty').clear().then(function(){
+            editCycle.$('.ng-empty').sendKeys(browser.params.testOrg.cycle);                  
+        });
+
+        $$('.btn-primary.btn-rowform').last().click(); 
         var myNewCycle = element.all(by.repeater('cycle in cycles')).filter(function(sub) {
             return sub.all(by.tagName('td')).first().$('[ng-show="!rowform.$visible"]').getText().then(function(label) { 
                 return label == browser.params.testOrg.cycle;
@@ -70,6 +80,7 @@ describe('When I visit the the parent org', function () {
         }).first();
         expect(myNewCycle.all(by.tagName('td')).first().$('[ng-show="!rowform.$visible"]').getText()).toEqual(browser.params.testOrg.cycle);
     });
+
     it('should create new label', function () {
         var myOptions = element.all(by.css('a')).filter(function (elm) {
             return elm.getText().then(function(label) { 
