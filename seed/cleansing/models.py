@@ -50,6 +50,11 @@ SEVERITY = [
 ]
 
 
+class CleansingInstance(models.Model):
+    org = models.ForeignKey(Organization)
+    background_task_identifier = models.CharField(max_length=100)
+
+
 class Rules(models.Model):
     org = models.ForeignKey(Organization)
     field = models.CharField(max_length=200)

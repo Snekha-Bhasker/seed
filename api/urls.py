@@ -16,6 +16,7 @@ from seed.data_importer.views import (
     LocalUploaderViewSet
 )
 from seed.views.api import get_api_schema
+from seed.cleansing.views import CleansingOperationViews
 from seed.views.columns import ColumnViewSet, ColumnMappingViewSet
 from seed.views.cycles import CycleView
 from seed.views.datasets import DatasetViewSet
@@ -41,6 +42,7 @@ api_v2_router.register(r'properties', PropertyViewSet, base_name="properties")
 api_v2_router.register(r'taxlots', TaxLotViewSet, base_name="taxlots")
 api_v2_router.register(r'reverse_and_test', TestReverseViewSet, base_name="reverse_and_test")
 api_v2_router.register(r'upload', LocalUploaderViewSet, base_name='local_uploader')
+api_v2_router.register(r'cleansing', CleansingOperationViews, base_name='cleansing')
 
 urlpatterns = [
     # v2 api
