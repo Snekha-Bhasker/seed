@@ -12,7 +12,7 @@ module.exports = function(grunt) {
             //         middleware: function (connect) {
             //             return [
             //                 lrSnippet,
-            //                 mountFolder(connect, 'instrumented'),
+            //                 mountFolder(connect, 'protractorInstrumented'),
             //                 mountFolder(connect, '.......')
             //             ];
             //         }
@@ -25,13 +25,13 @@ module.exports = function(grunt) {
           options: {
             force:true
           },
-          tests: ['tmp', 'build', 'instrumented', 'coverage', 'reports'],
+          tests: ['tmp', 'build', 'protractorInstrumented', 'protractorCoverage', 'protractorReports', 'protractorSaved'],
         },
         connect: {
           server: {
             options: {
               port: 3000,
-              base: 'instrumented/seed/static/seed/js'
+              base: 'protractorInstrumented/seed/static/seed/js'
             }
           },
         },
@@ -39,22 +39,34 @@ module.exports = function(grunt) {
             files: 'seed/static/seed/js/**/*.js',
             options: {
             lazy: true,
-                basePath: "instrumented"
+                basePath: "protractorInstrumented"
             }
         },
         copy: {
+          'save': {
+            expand: true,
+            cwd: 'seed/static/seed/js',
+            src: '**',
+            dest: 'protractorSaved/'
+          },
           'instrument': {
-            files: [{
-              src: ['seed/static/seed/js/**/*', '!seed/static/seed/js/**/*.js'],
-              dest: 'instrumented/'
-            }]
+            expand: true,
+            cwd: 'protractorInstrumented/seed/static/seed/js',
+            src: '**',
+            dest: 'seed/static/seed/js/'
+          },
+          'copyBack': {
+            expand: true,
+            cwd: 'protractorSaved',
+            src: '**',
+            dest: 'seed/static/seed/js/'
           },
         },
         protractor_coverage: {
             options: {
                 keepAlive: true,
                 noColor: false,
-                coverageDir: 'coverage',
+                coverageDir: 'protractorCoverage',
                 args: {
                     baseUrl: 'http://localhost:8000'
                 }
@@ -71,16 +83,16 @@ module.exports = function(grunt) {
             }
         },
         makeReport: {
-            src: 'coverage/*.json',
+            src: 'protractorCoverage/*.json',
             options: {
                 type: 'lcov',
-                dir: 'reports',
+                dir: 'protractorReports',
                 print: 'detail'
             }
         },
         coveralls: {
             main:{
-                src: 'reports/**/*.info',
+                src: 'protractorReports/**/*.info',
                 options: {
                     force: true
                 },
@@ -105,9 +117,8 @@ module.exports = function(grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('localCoverage', ['clean', 'protractor_coverage:local', 'makeReport']);
-    // grunt.registerTask('coverage', ['clean', 'copy', 'instrument', 'protractor_coverage:local', 'copyBack', 'makeReport', 'coveralls']);
+    grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport']);
+    // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport', 'coveralls']);
 
-    grunt.registerTask('default', ['localCoverage']);
-    // grunt.registerTask('default', ['coverage']);
+    grunt.registerTask('default', ['coverage']);
 };
