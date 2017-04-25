@@ -20,7 +20,7 @@ module.exports = function(grunt) {
             // }
 
         // Before generating any new files, remove any previously-created files.
-        },
+        // },
         clean: {
           options: {
             force:true
@@ -89,13 +89,13 @@ module.exports = function(grunt) {
     });
 
     // Actually load this plugin's task(s).
-    grunt.loadTasks('tasks');
+    // grunt.loadTasks('tasks');
 
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-protractor-coverage');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
+    // grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-nodeunit');
+    // grunt.loadNpmTasks('grunt-contrib-nodeunit');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-istanbul');
