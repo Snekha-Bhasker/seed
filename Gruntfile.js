@@ -39,7 +39,7 @@ module.exports = function(grunt) {
             files: 'seed/static/seed/js/**/*.js',
             options: {
             lazy: true,
-                basePath: "instrumented"
+                basePath: "seed/static/seed/js/**"
             }
         },
         copy: {
@@ -105,7 +105,7 @@ module.exports = function(grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('coverage', ['clean', 'copy', 'instrument', 'connect:server', 'selenium_start', 'protractor_coverage:local', 'selenium_stop', 'makeReport', 'coveralls']);
+    grunt.registerTask('coverage', ['clean', 'instrument', 'connect:server', 'selenium_start', 'protractor_coverage:local', 'selenium_stop', 'makeReport', 'coveralls']);
 
     grunt.registerTask('default', ['coverage']);
 };

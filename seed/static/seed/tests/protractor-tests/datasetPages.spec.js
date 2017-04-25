@@ -32,7 +32,7 @@ describe('When I visit the data set page', function () {
         // for remote travis ci to grab files
         browser.setFileDetector(new remote.FileDetector());
 
-        var fileToUpload = '../../../../tests/data/protractorProperties.xlsx';
+        var fileToUpload = 'seed/tests/data/protractorProperties.xlsx';
         var absolutePath = path.resolve(__dirname, fileToUpload);
 
         browser.ignoreSynchronization = true; //not angular based
@@ -89,7 +89,7 @@ describe('When I visit the data set page', function () {
         // for remote travis ci to grab the files
         browser.setFileDetector(new remote.FileDetector());
 
-        var fileToUpload = '../../../../tests/data/protractorTaxlots.xlsx';
+        var fileToUpload = 'seed/tests/data/protractorTaxlots.xlsx';
         var absolutePath = path.resolve(__dirname, fileToUpload);
 
         browser.ignoreSynchronization = true; //not angular based
