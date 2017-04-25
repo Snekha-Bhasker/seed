@@ -61,12 +61,12 @@ module.exports = function(grunt) {
             },
             local: {
                 options: {
-                    configFile: 'seed/static/seed/tests/protractor-tests/protractorConfig.js'
+                    configFile: 'seed/static/seed/tests/protractor-tests/protractorConfigCoverage.js'
                 }
             },
             travis: {
                 options: {
-                    configFile: 'seed/static/seed/tests/protractor-tests/protractorConfig.js'
+                    configFile: 'seed/static/seed/tests/protractor-tests/protractorConfigCoverage.js'
                 }
             }
         },
