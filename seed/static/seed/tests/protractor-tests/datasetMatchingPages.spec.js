@@ -106,13 +106,19 @@ describe('When I go to the dataset options page', function () {
         myOptions.click();
         expect($('.table_list_container').isPresent()).toBe(true);
 
-        var myOptions2 = element.all(by.repeater('rule in rules')).filter(function (elm) {
-            return elm.$('span').getText().then(function(label) { 
-                return label == 'Energy Score';
-            });
-        }).last();
-        myOptions2.$('[ng-model="rule.min"]').clear().then(function(){
-            myOptions2.$('[ng-model="rule.min"]').sendKeys('0');
+        // var myOptions2 = element.all(by.repeater('rule in rules')).filter(function (elm) {
+        //     return elm.$('span').getText().then(function(label) { 
+        //         return label == 'Energy Score';
+        //     });
+        // }).last();
+        // myOptions2.$('[ng-model="rule.min"]').clear().then(function(){
+        //     myOptions2.$('[ng-model="rule.min"]').sendKeys('0');
+        // });
+        var rowCount = element.all(by.repeater('rule in rules'));
+        expect(rowCount.count()).toBe(17);
+        // alternate way to select Min input in row 4
+        $$('[ng-model="rule.min"]').get(3).click().clear().then(function(){
+            $$('[ng-model="rule.min"]').get(3).sendKeys('0');
         });
         expect($('.table_list_container').isPresent()).toBe(true);
         $$('[ng-click="save_settings()"]').first().click();        
