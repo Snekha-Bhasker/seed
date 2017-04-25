@@ -39,7 +39,7 @@ module.exports = function(grunt) {
             files: 'seed/static/seed/js/**/*.js',
             options: {
             lazy: true,
-                basePath: "seed/static/seed/js/**"
+                basePath: "instrumented"
             }
         },
         copy: {
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
             }
         },
         makeReport: {
-            src: 'seed/static/seed/tests/protractor-tests/*.json',
+            src: 'coverage/*.json',
             options: {
                 type: 'lcov',
                 dir: 'reports',
@@ -105,7 +105,9 @@ module.exports = function(grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('coverage', ['clean', 'instrument', 'connect:server', 'selenium_start', 'protractor_coverage:local', 'selenium_stop', 'makeReport', 'coveralls']);
+    grunt.registerTask('localCoverage', ['clean', 'protractor_coverage:local', 'makeReport']);
+    // grunt.registerTask('coverage', ['clean', 'copy', 'instrument', 'protractor_coverage:local', 'copyBack', 'makeReport', 'coveralls']);
 
-    grunt.registerTask('default', ['coverage']);
+    grunt.registerTask('default', ['localCoverage']);
+    // grunt.registerTask('default', ['coverage']);
 };

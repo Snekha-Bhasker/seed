@@ -33,7 +33,8 @@ describe('When I visit the data set page', function () {
         browser.setFileDetector(new remote.FileDetector());
 
         var fileToUpload = 'seed/tests/data/protractorProperties.xlsx';
-        var absolutePath = path.resolve(__dirname, fileToUpload);
+        var absolutePath = path.resolve(fileToUpload);
+        // expect(absolutePath).toBe('fakeshit');
 
         browser.ignoreSynchronization = true; //not angular based
         element.all(by.xpath('//input[@type="file"]')).first().sendKeys(absolutePath);
@@ -90,7 +91,7 @@ describe('When I visit the data set page', function () {
         browser.setFileDetector(new remote.FileDetector());
 
         var fileToUpload = 'seed/tests/data/protractorTaxlots.xlsx';
-        var absolutePath = path.resolve(__dirname, fileToUpload);
+        var absolutePath = path.resolve(fileToUpload);
 
         browser.ignoreSynchronization = true; //not angular based
         element.all(by.xpath('//input[@type="file"]')).first().sendKeys(absolutePath);
