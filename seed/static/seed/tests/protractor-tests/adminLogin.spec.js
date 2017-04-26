@@ -12,7 +12,7 @@ describe('When I visit the login page', function () {
         element(by.className('btn btn-primary')).click();
     });
     it('should see title', function () {
-        // browser.get("/app");
+        browser.get("/app/#/about");
         // browser.ignoreSynchronization = false;
         expect(browser.getTitle()).toContain('SEED Platform');
     });

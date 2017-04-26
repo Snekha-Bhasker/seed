@@ -41,7 +41,13 @@ describe('When I go to the inventory page', function () {
 		expect($$('[ng-model="colFilter.term"]').first().getAttribute('value')).toEqual('');
 		$$('[ng-model="colFilter.term"]').first().sendKeys('this is something long and fake to get nothing to filter');
 		expect(rows.count()).toBeLessThan(1);
-		$$('[ng-model="colFilter.term"]').first().element(by.xpath('..')).$('[ui-grid-one-bind-aria-label="aria.removeFilter"]').click();
+		$('.ui-grid-icon-menu').click();
+		var myOptions = element.all(by.repeater('item in menuItems')).filter(function (elm) {
+			return elm.getText().then(function(label) { 
+				return label == ' Clear all filters';
+			});
+		}).first();
+		myOptions.click();		
 	});
 
 	it('should go to info pages', function () {
@@ -79,10 +85,19 @@ describe('When I go to the inventory page', function () {
 
 		var labels = element.all(by.repeater('label in labels'));
 		expect(labels.count()).not.toBeLessThan(1);
-
-		$('a.page_action.ng-binding').click();
 		
 	});
+
+	it('should go to settings in info pages', function () {
+		$('#settings').click();
+		$('[ng-if="grid.options.enableSelectAll"]').click().click();
+		$$('[ng-class="{\'ui-grid-row-selected\': row.isSelected}"]').first().click();
+		$('#item_title').click();
+		var rows = element.all(by.repeater('field in columns'));
+		expect(rows.count()).toBe(1);
+		$('a.page_action.ng-binding').click();
+	});
+
 
 	it('should get taxlot info from linked properties', function () {
 		// re expand
@@ -124,31 +139,42 @@ describe('When I go to the inventory page', function () {
 		expect(cols.count()).toBe(1);
 	});
 
-	    // Reports page from Inventory
-    it('should see inventory page and select reports page', function () {
-        $('#sidebar-inventory').click();
-        expect($('.ui-grid-contents-wrapper').isPresent()).toBe(true);
-        expect($('.page_title').getText()).toContain('Properties');
-        $('.form-control.input-sm').element(by.cssContainingText('option', browser.params.testOrg.cycle)).click();
-        expect($('.item-count').getText()).toContain('18 Properties');
-        $$('[ng-model="colFilter.term"]').first().click().sendKeys('2342').then();
-        expect($('[ng-model="cycle.selected_cycle"]').getText()).toContain(browser.params.testOrg.cycle);
-        expect($('.item-count').getText()).toContain('1 Property');
-        $$('[ng-model="colFilter.term"]').first().clear();
-        expect($('.item-count').getText()).toContain('18 Properties');
-        $$('[href="#/taxlots"]').click();
-        expect($('.page_title').getText()).toContain('Tax Lots');
-        expect($('.item-count').getText()).toContain('11 Tax Lots');
 
-        $('#reports').click();
-        expect($('.page_title').getText()).toContain('Inventory Reports');
-        expect($('svg').isPresent()).toBe(true);
+	it('should export', function () {
+		$('.ui-grid-icon-menu').click();
+		var myOptions = element.all(by.repeater('item in menuItems')).filter(function (elm) {
+			return elm.getText().then(function(label) { 
+				return label == '  Export all data as csv';
+			});
+		}).first();
+		myOptions.click();		
+	});
 
-        $('.btn.btn-primary').click();
-        browser.wait(EC.presenceOf($('#dimple-use-description-2017--0-99k-2017--')), 10000);
-        browser.wait(EC.presenceOf($('#dimple-use-description-2017--500-599k-2017--')), 10000);
-        browser.wait(EC.presenceOf($('.dimple-series-0')), 10000);
-        expect($('.fa.fa-square').isPresent()).toBe(true);
-        expect($('.fa.fa-circle').isPresent()).toBe(true);
-    });
+		// Reports page from Inventory
+	it('should see inventory page and select reports page', function () {
+		$('#sidebar-inventory').click();
+		expect($('.ui-grid-contents-wrapper').isPresent()).toBe(true);
+		expect($('.page_title').getText()).toContain('Properties');
+		$('.form-control.input-sm').element(by.cssContainingText('option', browser.params.testOrg.cycle)).click();
+		expect($('.item-count').getText()).toContain('18 Properties');
+		$$('[ng-model="colFilter.term"]').first().click().sendKeys('2342').then();
+		expect($('[ng-model="cycle.selected_cycle"]').getText()).toContain(browser.params.testOrg.cycle);
+		expect($('.item-count').getText()).toContain('1 Property');
+		$$('[ng-model="colFilter.term"]').first().clear();
+		expect($('.item-count').getText()).toContain('18 Properties');
+		$$('[href="#/taxlots"]').click();
+		expect($('.page_title').getText()).toContain('Tax Lots');
+		expect($('.item-count').getText()).toContain('11 Tax Lots');
+
+		$('#reports').click();
+		expect($('.page_title').getText()).toContain('Inventory Reports');
+		expect($('svg').isPresent()).toBe(true);
+
+		$('.btn.btn-primary').click();
+		browser.wait(EC.presenceOf($('#dimple-use-description-2017--0-99k-2017--')), 10000);
+		browser.wait(EC.presenceOf($('#dimple-use-description-2017--500-599k-2017--')), 10000);
+		browser.wait(EC.presenceOf($('.dimple-series-0')), 10000);
+		expect($('.fa.fa-square').isPresent()).toBe(true);
+		expect($('.fa.fa-circle').isPresent()).toBe(true);
+	});
 });

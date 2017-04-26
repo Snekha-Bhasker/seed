@@ -147,20 +147,20 @@ angular.module('BE.seed.service.inventory_reports',
      version so there is nothing meaningful to base the implementation
      on. Therefore the endpoint may never get implemented.
      */
-    function get_summary_data(xVar, yVar, startDate, endDate) {
-      return $http.get(window.BE.urls.get_inventory_summary_report_data, {
-        params: {
-          organization_id: user_service.get_organization().id,
-          start_date: getDateString(startDate),
-          end_date: getDateString(endDate)
-        }
-      }).then(function (response) {
-        building_reports_factory.summary_data = _.has(response.data, 'summary_data') ? response.data.summary_data : [];
-        return response.data;
-      }).catch(function () {
-        building_reports_factory.summary_data = [];
-      });
-    }
+    // function get_summary_data(xVar, yVar, startDate, endDate) {
+    //   return $http.get(window.BE.urls.get_inventory_summary_report_data, {
+    //     params: {
+    //       organization_id: user_service.get_organization().id,
+    //       start_date: getDateString(startDate),
+    //       end_date: getDateString(endDate)
+    //     }
+    //   }).then(function (response) {
+    //     building_reports_factory.summary_data = _.has(response.data, 'summary_data') ? response.data.summary_data : [];
+    //     return response.data;
+    //   }).catch(function () {
+    //     building_reports_factory.summary_data = [];
+    //   });
+    // }
 
     /* Public API */
 

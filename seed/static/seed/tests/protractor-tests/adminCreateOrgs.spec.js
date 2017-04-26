@@ -4,6 +4,17 @@ var EC = protractor.ExpectedConditions;
 describe('When I go to admin page', function () {
      it('should create new test org', function () {
         browser.ignoreSynchronization = false;
+        browser.get("/app/#/api/swagger");
+        browser.get("/app/#/contact");
+        browser.get("/app/#/profile/security");
+        browser.get("/app/#/profile/developer");
+        
+        browser.get("/app/#/profile");
+        $('#first-name-text').sendKeys('ME');
+        $('#last-name-text').sendKeys('NotYou');
+        $('#update_profile').click();
+        expect($('i.ng-hide').isPresent()).toBe(false);
+
         browser.get("/app/#/profile/admin");
         $('#org_name').sendKeys(browser.params.testOrg.parent);
         $$('#user_emails').first().element(by.cssContainingText('option', browser.params.login.user)).click();

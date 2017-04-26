@@ -93,40 +93,43 @@ describe('When I go to the dataset options page', function () {
 
     // Uncomment after data quality updates!
 
-    // it('should go to parent organization for data quality', function () {
-    //     var myNewOrg = element(by.cssContainingText('.account_org.parent_org', browser.params.testOrg.parent))
-    //         .element(by.xpath('..')).$('.account_org.right');
+    it('should go to parent organization for data quality', function () {
+        var myNewOrg = element(by.cssContainingText('.account_org.parent_org', browser.params.testOrg.parent))
+            .element(by.xpath('..')).$('.account_org.right');
         
-    //     expect(myNewOrg.isPresent()).toBe(true);
+        expect(myNewOrg.isPresent()).toBe(true);
 
-    //     browser.actions().mouseMove(myNewOrg).perform();
-    //     myNewOrg.$$('a').first().click();
-    //     var myOptions = element.all(by.css('a')).filter(function (elm) {
-    //         return elm.getText().then(function(label) { 
-    //             return label == 'Data Quality';
-    //         });
-    //     }).first();
-    //     myOptions.click();
-    //     expect($('.table_list_container').isPresent()).toBe(true);
+        browser.actions().mouseMove(myNewOrg).perform();
+        myNewOrg.$$('a').first().click();
+        var myOptions = element.all(by.css('a')).filter(function (elm) {
+            return elm.getText().then(function(label) { 
+                return label == 'Data Cleansing';
+            });
+        }).first();
+        myOptions.click();
+        expect($('.table_list_container').isPresent()).toBe(true);
 
-    //     // var myOptions2 = element.all(by.repeater('rule in rules')).filter(function (elm) {
-    //     //     return elm.$('span').getText().then(function(label) { 
-    //     //         return label == 'Energy Score';
-    //     //     });
-    //     // }).last();
-    //     // myOptions2.$('[ng-model="rule.min"]').clear().then(function(){
-    //     //     myOptions2.$('[ng-model="rule.min"]').sendKeys('0');
-    //     // });
-    //     var rowCount = element.all(by.repeater('rule in rules'));
-    //     expect(rowCount.count()).toBe(17);
-    //     // alternate way to select Min input in row 4
-    //     $$('[ng-model="rule.min"]').get(3).click().clear().then(function(){
-    //         $$('[ng-model="rule.min"]').get(3).sendKeys('0');
-    //     });
-    //     expect($('.table_list_container').isPresent()).toBe(true);
-    //     $$('[ng-click="save_settings()"]').first().click();        
-    //     browser.wait(EC.presenceOf($('.fa-check')),10000);
-    // });
+        // var myOptions2 = element.all(by.repeater('rule in rules')).filter(function (elm) {
+        //     return elm.$('span').getText().then(function(label) { 
+        //         return label == 'Energy Score';
+        //     });
+        // }).last();
+        // myOptions2.$('[ng-model="rule.min"]').clear().then(function(){
+        //     myOptions2.$('[ng-model="rule.min"]').sendKeys('0');
+        // });
+        var rowCount = element.all(by.repeater('rule in rules'));
+
+        //put back later
+        // expect(rowCount.count()).toBe(17);
+        
+        // alternate way to select Min input in row 4
+        $$('[ng-model="rule.min"]').get(3).click().clear().then(function(){
+            $$('[ng-model="rule.min"]').get(3).sendKeys('0');
+        });
+        expect($('.table_list_container').isPresent()).toBe(true);
+        $$('[ng-click="save_settings()"]').first().click();        
+        browser.wait(EC.presenceOf($('.fa-check')),10000);
+    });
 
     it('should go back to data page and select properties', function () {
         browser.get("/app/#/data");
