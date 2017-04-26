@@ -82,6 +82,7 @@ angular.module('BE.seed.filters', [
   'typedNumber'
 ]);
 angular.module('BE.seed.directives', [
+  'sdBasicBuildingInfoChart',
   'sdBasicPropertyInfoChart',
   'sdCheckCycleExists',
   'sdCheckLabelExists',
