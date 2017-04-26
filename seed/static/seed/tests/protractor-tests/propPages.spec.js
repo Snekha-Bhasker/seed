@@ -43,7 +43,7 @@ describe('When I go to the inventory page', function () {
 		expect(rows.count()).toBeLessThan(1);
 		$('.ui-grid-icon-menu').click();
 		var myOptions = element.all(by.repeater('item in menuItems')).filter(function (elm) {
-			return elm.getText().then(function(label) { 
+			return elm.$('i').getText().then(function(label) { 
 				return label == ' Clear all filters';
 			});
 		}).first();
