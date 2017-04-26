@@ -5,9 +5,13 @@ describe('When I go to admin page', function () {
      it('should create new test org', function () {
         browser.ignoreSynchronization = false;
         browser.get("/app/#/api/swagger");
+        expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/contact");
+        expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/profile/security");
+        expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/profile/developer");
+        expect(browser.getTitle()).toContain('SEED Platform');
         
         browser.get("/app/#/profile");
         $('#first-name-text').sendKeys('ME');

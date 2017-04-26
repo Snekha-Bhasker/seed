@@ -48,20 +48,22 @@ describe('controller: inventory_detail_controller', function(){
             mock_building_services = inventory_service;
             mock_project_service = project_service;
 
-            spyOn(mock_project_service, 'get_project')
-                .andCallFake(function(project_slug){
-                    return $q.when(
-                        {
-                            status: 'success',
-                            project: {
-                                id: 33,
-                                name: 'test project',
-                                slug: project_slug
-                            }
-                        }
-                    );
-                }
-            );
+            // when project feature gets reenabled, un comment and tests below
+            
+            // spyOn(mock_project_service, 'get_project')
+            //     .andCallFake(function(project_slug){
+            //         return $q.when(
+            //             {
+            //                 status: 'success',
+            //                 project: {
+            //                     id: 33,
+            //                     name: 'test project',
+            //                     slug: project_slug
+            //                 }
+            //             }
+            //         );
+            //     }
+            // );
             spyOn(mock_building_services, 'update_property')
                 .andCallFake(function (property_id, cycle_id, state){
                     mock_building = state;
