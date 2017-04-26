@@ -7,12 +7,15 @@ describe('When I go to the dataset options page', function () {
 		browser.get("/app/#/data");
 		
 		$('[ng-click="open_data_upload_modal(d)"]').click();
-		$('[ng-click="cancel()"]').click();
+		$$('[ng-click="cancel()"]').first().click();
+		browser.sleep(1000);
 		$('[ng-click="edit_dataset_name(d)"]').click();
 		$('[]ng-click="cancel_edit_name(d)"').click();
+		browser.sleep(2000);
 		$('[ng-click="edit_dataset_name(d)"]').click();
 		$('#editDatasetName').sendKeys('2');
 		$('[ng-click="save_dataset_name(d)"]').click();
+		browser.sleep(2000);
 
 		$$('[ui-sref="dataset_detail({dataset_id: d.id})"]').first().click();
 		var rows = element.all(by.repeater('f in dataset.importfiles'));

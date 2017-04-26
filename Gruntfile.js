@@ -36,7 +36,7 @@ module.exports = function(grunt) {
           },
         },
         instrument: {
-            files: 'seed/static/seed/js/**/*.js',
+            files: ['seed/static/seed/js/**/*.js','!seed/static/seed/js/decorators/**/*.js', '!seed/static/seed/js/seed.js'],
             options: {
             lazy: true,
                 basePath: "protractorInstrumented"
