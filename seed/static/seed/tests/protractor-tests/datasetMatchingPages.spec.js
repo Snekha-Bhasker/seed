@@ -5,6 +5,15 @@ var EC = protractor.ExpectedConditions;
 describe('When I go to the dataset options page', function () {
 	it('should delete a single file', function () {
 		browser.get("/app/#/data");
+		
+		$('[ng-click="open_data_upload_modal(d)"]').click();
+		$('[ng-click="cancel()"]').click();
+		$('[ng-click="edit_dataset_name(d)"]').click();
+		$('[]ng-click="cancel_edit_name(d)"').click();
+		$('[ng-click="edit_dataset_name(d)"]').click();
+		$('#editDatasetName').sendKeys('2');
+		$('[ng-click="save_dataset_name(d)"]').click();
+
 		$$('[ui-sref="dataset_detail({dataset_id: d.id})"]').first().click();
 		var rows = element.all(by.repeater('f in dataset.importfiles'));
 		expect(rows.count()).toBe(2);
@@ -196,6 +205,7 @@ describe('When I go to the dataset options page', function () {
         $('[ui-sref="matching_list({importfile_id: import_file.id, inventory_type: inventory_type})"]').click();
         $('#showHideFilterSelect').element(by.cssContainingText('option', 'Show All')).click();
         expect($('.table_footer').getText()).toContain('4 unmatched');
+        $$('[ng-change="unmatch(i)"]').first().click()
 		$$('[ui-sref="dataset_detail({dataset_id: import_file.dataset.id})"]').first().click();
 	});
 

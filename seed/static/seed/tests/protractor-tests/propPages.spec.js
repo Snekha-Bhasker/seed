@@ -42,7 +42,7 @@ describe('When I go to the inventory page', function () {
 		$$('[ng-model="colFilter.term"]').first().sendKeys('this is something long and fake to get nothing to filter');
 		expect(rows.count()).toBeLessThan(1);
 		$$('[ng-model="colFilter.term"]').first().element(by.xpath('..')).$('[ui-grid-one-bind-aria-label="aria.removeFilter"]').click();
-		$('[ng-click="headerButtonClick($event)"]').click().click();
+		$('[ng-if="grid.options.enableSelectAll"]').click().click();
 	});
 
 	it('should go to info pages', function () {
@@ -150,18 +150,6 @@ describe('When I go to the inventory page', function () {
         $('[ng-click="toggle_menu()"]').click();
 		$('#sidebar-inventory').click();
         $('[ng-click="toggle_menu()"]').click();
-		expect($('.ui-grid-contents-wrapper').isPresent()).toBe(true);
-		expect($('.page_title').getText()).toContain('Properties');
-		$('.form-control.input-sm').element(by.cssContainingText('option', browser.params.testOrg.cycle)).click();
-		expect($('.item-count').getText()).toContain('18 Properties');
-		$$('[ng-model="colFilter.term"]').first().click().sendKeys('2342').then();
-		expect($('[ng-model="cycle.selected_cycle"]').getText()).toContain(browser.params.testOrg.cycle);
-		expect($('.item-count').getText()).toContain('1 Property');
-		$$('[ng-model="colFilter.term"]').first().clear();
-		expect($('.item-count').getText()).toContain('18 Properties');
-		$$('[href="#/taxlots"]').click();
-		expect($('.page_title').getText()).toContain('Tax Lots');
-		expect($('.item-count').getText()).toContain('11 Tax Lots');
 
 		$('#reports').click();
 		expect($('.page_title').getText()).toContain('Inventory Reports');
