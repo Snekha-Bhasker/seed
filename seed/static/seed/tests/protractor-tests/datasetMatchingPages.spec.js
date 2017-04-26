@@ -5,18 +5,8 @@ var EC = protractor.ExpectedConditions;
 describe('When I go to the dataset options page', function () {
 	it('should delete a single file', function () {
 		browser.get("/app/#/data");
+		browser.ignoreSynchronization = false;
 		
-		$('[ng-click="open_data_upload_modal(d)"]').click();
-		$$('[ng-click="cancel()"]').first().click();
-		browser.sleep(1000);
-		$('[ng-click="edit_dataset_name(d)"]').click();
-		$('[]ng-click="cancel_edit_name(d)"').click();
-		browser.sleep(2000);
-		$('[ng-click="edit_dataset_name(d)"]').click();
-		$('#editDatasetName').sendKeys('2');
-		$('[ng-click="save_dataset_name(d)"]').click();
-		browser.sleep(2000);
-
 		$$('[ui-sref="dataset_detail({dataset_id: d.id})"]').first().click();
 		var rows = element.all(by.repeater('f in dataset.importfiles'));
 		expect(rows.count()).toBe(2);
@@ -221,7 +211,7 @@ describe('When I go to the dataset options page', function () {
 		browser.sleep(2000);
 
 		// Gotta figure this out, remote has 1 unpaired.
-		expect($('.pairing-text-left').getText()).toContain('Showing 18 Properties');
+		expect($('.pairing-text-left').getText()).toContain('Showing 19 Properties');
 		expect($('.pairing-text-right').getText()).toContain('Showing 11 Tax Lots');
 	});
 
@@ -245,7 +235,7 @@ describe('When I go to the dataset options page', function () {
 		// browser.wait(EC.presenceOf($('.inventory-list-tab-container.ng-scope')),30000);       
 		expect($('.page_title').getText()).toContain('Pair Tax Lots to Properties');
 
-		expect($('.pairing-text-right').getText()).toContain('Showing 18 Properties (18 unpaired)');
+		expect($('.pairing-text-right').getText()).toContain('Showing 19 Properties (19 unpaired)');
 		expect($('.pairing-text-left').getText()).toContain('Showing 11 Tax Lots (11 unpaired)');
 
 		browser.sleep(2000);
@@ -270,7 +260,7 @@ describe('When I go to the dataset options page', function () {
 		lastDropElement.click();
 		browser.sleep(200);
 
-		expect($('.pairing-text-right').getText()).toContain('Showing 18 Properties (16 unpaired)');
+		expect($('.pairing-text-right').getText()).toContain('Showing 19 Properties (17 unpaired)');
 		expect($('.pairing-text-left').getText()).toContain('Showing 11 Tax Lots (10 unpaired)');
 		browser.sleep(2000);
 	});
@@ -285,6 +275,18 @@ describe('When I go to the dataset options page', function () {
 		var rows = element.all(by.repeater('f in dataset.importfiles'));
 		expect(rows.count()).toBe(1);
 		$$('[ui-sref="dataset_list"]').first().click();
+
+		$('[ng-click="open_data_upload_modal(d)"]').click();
+		$('[ng-click="cancel()"].btn-default').click();
+		browser.sleep(1000);
+		$('[ng-click="edit_dataset_name(d)"]').click();
+		$('[ng-click="cancel_edit_name(d)"]').click();
+		browser.sleep(2000);
+		$('[ng-click="edit_dataset_name(d)"]').click();
+		$('#editDatasetName').sendKeys('2');
+		$('[ng-click="save_dataset_name(d)"]').click();
+		browser.sleep(2000);
+
 		$$('[ng-click="confirm_delete(d)"]').first().click();
 		$$('[ng-click="delete_dataset()"]').first().click();
 		rows = element.all(by.repeater('d in datasets'));
