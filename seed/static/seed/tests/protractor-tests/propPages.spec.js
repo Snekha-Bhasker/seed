@@ -41,13 +41,7 @@ describe('When I go to the inventory page', function () {
 		expect($$('[ng-model="colFilter.term"]').first().getAttribute('value')).toEqual('');
 		$$('[ng-model="colFilter.term"]').first().sendKeys('this is something long and fake to get nothing to filter');
 		expect(rows.count()).toBeLessThan(1);
-		$('.ui-grid-icon-menu').click();
-		var myOptions = element.all(by.repeater('item in menuItems')).filter(function (elm) {
-			return elm.$('i').getText().then(function(label) { 
-				return label == ' Clear all filters';
-			});
-		}).first();
-		myOptions.click();		
+		$$('[ng-model="colFilter.term"]').first().element(by.xpath('..')).$('[ui-grid-one-bind-aria-label="aria.removeFilter"]').click();
 	});
 
 	it('should go to info pages', function () {

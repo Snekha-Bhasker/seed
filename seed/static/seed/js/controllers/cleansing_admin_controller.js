@@ -28,7 +28,7 @@ angular.module('BE.seed.controller.cleansing_admin', [])
       _.forEach(rules.in_range_checking, function (rule) {
         if (!$scope.rows.hasOwnProperty(rule.field)) $scope.rows[rule.field] = [];
         var row = _.pick(rule, ['enabled', 'type', 'min', 'max', 'severity', 'units']);
-        row.title = _.find(all_columns.fields, {sort_column: rule.field}).title;
+        row.title = _.find(all_columns.fields, {name: rule.field}).title;
         if (row.type === 'date') {
           if (row.min) row.min = moment(row.min, 'YYYYMMDD').toDate();
           if (row.max) row.max = moment(row.max, 'YYYYMMDD').toDate();
