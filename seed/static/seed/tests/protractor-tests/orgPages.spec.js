@@ -97,6 +97,8 @@ describe('When I visit the the parent org', function () {
             .element(by.xpath('..')).element(by.xpath('..'));
 
         expect(myNewLabel.isPresent()).toBe(true);
+        myNewLabel.$('[ng-click="rowform.$show()"]').click();
+        myNewLabel.$('[type="submit"]').click();
         myNewLabel.$('[ng-click="deleteLabel(label, $index)"]').click();
         browser.sleep(300);
         $('.btn.btn-primary.ng-binding').click();

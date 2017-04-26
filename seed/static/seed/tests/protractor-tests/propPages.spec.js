@@ -42,6 +42,7 @@ describe('When I go to the inventory page', function () {
 		$$('[ng-model="colFilter.term"]').first().sendKeys('this is something long and fake to get nothing to filter');
 		expect(rows.count()).toBeLessThan(1);
 		$$('[ng-model="colFilter.term"]').first().element(by.xpath('..')).$('[ui-grid-one-bind-aria-label="aria.removeFilter"]').click();
+		$('[ng-click="headerButtonClick($event)"]').click().click();
 	});
 
 	it('should go to info pages', function () {
@@ -146,7 +147,9 @@ describe('When I go to the inventory page', function () {
 
 		// Reports page from Inventory
 	it('should see inventory page and select reports page', function () {
+        $('[ng-click="toggle_menu()"]').click();
 		$('#sidebar-inventory').click();
+        $('[ng-click="toggle_menu()"]').click();
 		expect($('.ui-grid-contents-wrapper').isPresent()).toBe(true);
 		expect($('.page_title').getText()).toContain('Properties');
 		$('.form-control.input-sm').element(by.cssContainingText('option', browser.params.testOrg.cycle)).click();

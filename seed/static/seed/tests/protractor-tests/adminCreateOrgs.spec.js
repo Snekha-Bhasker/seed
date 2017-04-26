@@ -14,10 +14,19 @@ describe('When I go to admin page', function () {
         expect(browser.getTitle()).toContain('SEED Platform');
         
         browser.get("/app/#/profile");
-        $('#first-name-text').sendKeys('ME');
-        $('#last-name-text').sendKeys('NotYou');
+        $('#first-name-text').clear().then(function(){
+            $('#first-name-text').sendKeys("ME");                  
+        });
+        $('#last-name-text').clear().then(function(){
+            $('#last-name-text').sendKeys("NotYou");                  
+        });
         $('#update_profile').click();
         expect($('i.ng-hide').isPresent()).toBe(false);
+        $('#first-name-text').clear().then(function(){
+            $('#first-name-text').sendKeys("ME");                  
+        });
+        $('[ng-click="reset_form()"]').click();
+
 
         browser.get("/app/#/profile/admin");
         $('#org_name').sendKeys(browser.params.testOrg.parent);
