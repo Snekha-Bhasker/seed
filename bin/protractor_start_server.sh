@@ -17,4 +17,4 @@ echo "starting server"
 ./manage.py runserver & &> main.log
 sleep 15
 echo "run e2e tests"
-npm run gruntTest
+npm test
