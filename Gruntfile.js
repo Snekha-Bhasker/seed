@@ -120,5 +120,5 @@ module.exports = function(grunt) {
     grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport']);
     // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport', 'coveralls']);
 
-    grunt.registerTask('default', ['coverage']);
+    grunt.registerTask('test', ['coverage']);
 };
