@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # starts local server and create test user for protractor tests
 
+echo "install npm dev"
+npm install --only=dev
 echo "updating webdriver"
 ./node_modules/protractor/bin/webdriver-manager update
 echo "migrating"
@@ -14,7 +16,5 @@ celery -A seed worker -l INFO -c 2 -B --events --maxtasksperchild 1000 & &> cele
 echo "starting server"
 ./manage.py runserver & &> main.log
 sleep 15
-echo "install npm dev"
-npm install
 echo "run e2e tests"
 npm run gruntTest
