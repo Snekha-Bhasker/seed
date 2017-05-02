@@ -14,5 +14,7 @@ celery -A seed worker -l INFO -c 2 -B --events --maxtasksperchild 1000 & &> cele
 echo "starting server"
 ./manage.py runserver & &> main.log
 sleep 15
+echo "install npm dev"
+npm install
 echo "run e2e tests"
 npm run gruntTest
