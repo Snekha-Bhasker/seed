@@ -117,8 +117,8 @@ module.exports = function(grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'protractor_coverage:local', 'copy:copyBack']);
-    // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport']);
+    // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'protractor_coverage:local', 'copy:copyBack']);
+    grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport']);
     // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport', 'coveralls']);
 
     grunt.registerTask('test', ['coverage']);
