@@ -65,18 +65,13 @@ module.exports = function(grunt) {
         protractor_coverage: {
             options: {
                 keepAlive: false, // If false, the grunt process stops when the test fails.
-                noColor: false,
-                coverageDir: 'protractorCoverage',
-                args: {
-                    baseUrl: 'http://localhost:8000'
-                }
+                // noColor: false,
+                // coverageDir: 'protractorCoverage',
+                // args: {
+                //     baseUrl: 'http://localhost:8000'
+                // }
             },
             local: {
-                options: {
-                    configFile: 'seed/static/seed/tests/protractor-tests/protractorConfigCoverage.js'
-                }
-            },
-            travis: {
                 options: {
                     configFile: 'seed/static/seed/tests/protractor-tests/protractorConfigCoverage.js'
                 }
