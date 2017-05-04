@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # starts local server and create test user for protractor tests
 
-echo "install npm dev"
-npm install --only=dev
 echo "updating webdriver"
 ./node_modules/protractor/bin/webdriver-manager update
 echo "migrating"

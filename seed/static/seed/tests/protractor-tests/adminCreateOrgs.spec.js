@@ -29,6 +29,7 @@ describe('When I go to admin page', function () {
 
 
         browser.get("/app/#/profile/admin");
+        browser.sleep(5000);
         $('#org_name').sendKeys(browser.params.testOrg.parent);
         $$('#user_emails').first().element(by.cssContainingText('option', browser.params.login.user)).click();
         $('[ng-click="org_form.add(org)"]').click();
