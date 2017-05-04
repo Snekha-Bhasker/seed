@@ -2,7 +2,14 @@
 var EC = protractor.ExpectedConditions;
 // Admin page:
 describe('When I go to admin page', function () {
-    browser.ignoreSynchronization = false;
+    // browser.ignoreSynchronization = false;
+
+    // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
+    });
+
+    
      it('should create new test org', function () {
         browser.get("/app/#/api/swagger");
         expect(browser.getTitle()).toContain('SEED Platform');
