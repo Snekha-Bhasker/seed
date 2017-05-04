@@ -2,8 +2,8 @@
 var EC = protractor.ExpectedConditions;
 // Admin page:
 describe('When I go to admin page', function () {
+    browser.ignoreSynchronization = false;
      it('should create new test org', function () {
-        browser.ignoreSynchronization = false;
         browser.get("/app/#/api/swagger");
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/contact");
@@ -29,7 +29,7 @@ describe('When I go to admin page', function () {
 
 
         browser.get("/app/#/profile/admin");
-        browser.sleep(5000);
+        // browser.sleep(5000);
         $('#org_name').sendKeys(browser.params.testOrg.parent);
         $$('#user_emails').first().element(by.cssContainingText('option', browser.params.login.user)).click();
         $('[ng-click="org_form.add(org)"]').click();
