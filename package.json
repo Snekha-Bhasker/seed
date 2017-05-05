@@ -38,6 +38,5 @@
     "bower": "bower",
     "gulp": "gulp",
     "test": "protractor seed/static/seed/tests/protractor-tests/protractorConfig.js",
-    "gruntTest": "grunt test"
   }
 }

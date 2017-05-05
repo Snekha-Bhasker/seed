@@ -109,7 +109,7 @@ module.exports = function(grunt) {
     // plugin's task(s), then test the result.
 
     //same as npm test more or less
-    grunt.registerTask('coverage', ['protractor_coverage:local']);
+    // grunt.registerTask('coverage', ['protractor_coverage:local']);
     
     //don't use instrumented code
     // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'protractor_coverage:local', 'copy:copyBack']);    
@@ -118,7 +118,7 @@ module.exports = function(grunt) {
     // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport']);
 
     //with coveralls
-    // grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport', 'coveralls']);
+    grunt.registerTask('coverage', ['clean', 'copy:save', 'instrument', 'copy:instrument', 'protractor_coverage:local', 'copy:copyBack', 'makeReport', 'coveralls']);
 
     grunt.registerTask('test', ['coverage']);
 };

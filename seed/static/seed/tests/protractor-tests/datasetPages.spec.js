@@ -7,6 +7,12 @@ var remote = require('selenium-webdriver/remote');
 // Data Set page
 // Select my new sub org
 describe('When I click the orgs button', function () {
+
+    // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
+    });
+
     it('should be able to switch to my org', function () {
         browser.get("/app/#/data");
         $('#btnUserOrgs').click();
@@ -16,7 +22,8 @@ describe('When I click the orgs button', function () {
 });
 
 describe('When I visit the data set page', function () {
-        // manually
+    
+    // manually
     it ('should reset sync', function () {
         browser.ignoreSynchronization = false;
     });
@@ -24,7 +31,7 @@ describe('When I visit the data set page', function () {
     it('should be able to create a new data set', function () {
 
         $('[ui-sref="dataset_list"]').click();
-        browser.sleep(1000);
+        // browser.sleep(1000);
         $$('input').first().sendKeys('my fake dataset');
         $('[ng-click="create_dataset(dataset.name)"]').click();
         // selectDropdownbyText(element, browser.params.testOrg.cycle);
@@ -32,12 +39,6 @@ describe('When I visit the data set page', function () {
         element(by.cssContainingText('option', browser.params.testOrg.cycle)).click();
         // $('[buttontext="Upload a Spreadsheet"]').$('.qq-uploader').click();
 
-        // for remote travis ci to grab files
-        browser.setFileDetector(new remote.FileDetector());
-
-        var fileToUpload = 'seed/tests/data/protractorProperties.xlsx';
-        var absolutePath = path.resolve(fileToUpload);
-        // expect(absolutePath).toBe('fakeshit');
     });
 
         // manually
@@ -46,6 +47,12 @@ describe('When I visit the data set page', function () {
     });
 
     it('should be able to create a new data set async', function () {
+        // for remote travis ci to grab files
+        browser.setFileDetector(new remote.FileDetector());
+
+        var fileToUpload = 'seed/tests/data/protractorProperties.xlsx';
+        var absolutePath = path.resolve(fileToUpload);
+        // expect(absolutePath).toBe('fakeshit');
 
         element.all(by.xpath('//input[@type="file"]')).first().sendKeys(absolutePath);
         browser.wait(EC.presenceOf($('.alert.alert-success')), 120000);
