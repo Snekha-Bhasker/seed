@@ -111,7 +111,7 @@ describe('When I visit the the parent org', function () {
         myNewLabel.$('[ng-click="rowform.$show()"]').click();
         myNewLabel.$('[type="submit"]').click();
         myNewLabel.$('[ng-click="deleteLabel(label, $index)"]').click();
-        browser.sleep(300);
+        browser.sleep(2000);
         $('.btn.btn-primary.ng-binding').click();
         expect(myNewLabel.isPresent()).toBe(false);
     });

@@ -11,12 +11,16 @@ describe('When I go to admin page', function () {
 
      it('should test admin pages', function () {
         browser.get("/app/#/api/swagger");
+        browser.sleep(2000);
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/contact");
+        browser.sleep(2000);
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/profile/security");
+        browser.sleep(2000);
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/profile/developer");
+        browser.sleep(2000);
         expect(browser.getTitle()).toContain('SEED Platform');
         
         browser.get("/app/#/profile");

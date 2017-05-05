@@ -188,6 +188,9 @@ describe('When I go to the dataset options page', function () {
         $('#showHideFilterSelect').element(by.cssContainingText('option', 'Show Matched')).click();
 		var rows = element.all(by.repeater('i in inventory'));
 		expect(rows.count()).not.toBeLessThan(1);
+	});
+
+	it('should unmatch stuffs', function () {
 		$$('[ui-sref="matching_detail({importfile_id: import_file.id, inventory_type: inventory_type, state_id: i.id})"]').first().click();
 		rows = element.all(by.repeater('state in available_matches'));
 		expect(rows.count()).not.toBeLessThan(1);
@@ -195,6 +198,9 @@ describe('When I go to the dataset options page', function () {
         browser.wait(EC.presenceOf($('.message')),10000);
         $('[ui-sref="matching_list({importfile_id: import_file.id, inventory_type: inventory_type})"]').click();
         expect($('.table_footer').getText()).toContain('5 unmatched');
+    });
+
+	it('should re match stuffs', function () {
         $('#showHideFilterSelect').element(by.cssContainingText('option', 'Show Unmatched')).click();
 		$$('[ui-sref="matching_detail({importfile_id: import_file.id, inventory_type: inventory_type, state_id: i.id})"]').first().click();
         $$('[ng-change="checkbox_match(state)"]').first().click();
@@ -202,7 +208,12 @@ describe('When I go to the dataset options page', function () {
         $('[ui-sref="matching_list({importfile_id: import_file.id, inventory_type: inventory_type})"]').click();
         $('#showHideFilterSelect').element(by.cssContainingText('option', 'Show All')).click();
         expect($('.table_footer').getText()).toContain('4 unmatched');
+    });
+
+
+	it('should unmatch from front page', function () {
         $$('[ng-change="unmatch(i)"]').first().click()
+        expect($('.table_footer').getText()).toContain('5 unmatched');
 		$$('[ui-sref="dataset_detail({dataset_id: import_file.dataset.id})"]').first().click();
 	});
 
@@ -214,7 +225,6 @@ describe('When I go to the dataset options page', function () {
 		element(by.cssContainingText('[ng-model="cycle.selected_cycle"] option', browser.params.testOrg.cycle)).click();
 		browser.sleep(2000);
 
-		// Gotta figure this out, remote has 1 unpaired.
 		expect($('.pairing-text-left').getText()).toContain('Showing 19 Properties');
 		expect($('.pairing-text-right').getText()).toContain('Showing 11 Tax Lots');
 	});
