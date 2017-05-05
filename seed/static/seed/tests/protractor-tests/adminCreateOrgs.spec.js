@@ -2,7 +2,6 @@
 var EC = protractor.ExpectedConditions;
 // Admin page:
 describe('When I go to admin page', function () {
-    // browser.ignoreSynchronization = false;
 
     // manually
     it ('should reset sync', function () {

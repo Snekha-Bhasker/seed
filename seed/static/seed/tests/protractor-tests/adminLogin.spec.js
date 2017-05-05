@@ -24,7 +24,6 @@ describe('When I visit the login page', function () {
 
     it('should see title', function () {
         browser.get("/app/#/about");
-        // browser.ignoreSynchronization = false;
         expect(browser.getTitle()).toContain('SEED Platform');
     });
 });

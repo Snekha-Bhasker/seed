@@ -16,10 +16,13 @@ describe('When I click the orgs button', function () {
 });
 
 describe('When I visit the data set page', function () {
+        // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
+    });
+
     it('should be able to create a new data set', function () {
 
-        browser.ignoreSynchronization = false;
-        // browser.ignoreSynchronization = true; //not angular based
         $('[ui-sref="dataset_list"]').click();
         browser.sleep(1000);
         $$('input').first().sendKeys('my fake dataset');
@@ -35,16 +38,27 @@ describe('When I visit the data set page', function () {
         var fileToUpload = 'seed/tests/data/protractorProperties.xlsx';
         var absolutePath = path.resolve(fileToUpload);
         // expect(absolutePath).toBe('fakeshit');
+    });
 
-        browser.ignoreSynchronization = true; //not angular based
+        // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = true;
+    });
+
+    it('should be able to create a new data set async', function () {
+
         element.all(by.xpath('//input[@type="file"]')).first().sendKeys(absolutePath);
         browser.wait(EC.presenceOf($('.alert.alert-success')), 120000);
         expect($('.alert.alert-success').isPresent()).toBe(true);
         expect($('[ng-click="goto_data_mapping()"]').isPresent()).toBe(true);
     });
 
-    it('should take me to the mapping page', function () {
+        // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = false;
+    });
+
+    it('should take me to the mapping page', function () {
         $('[ng-click="goto_data_mapping()"]').click(); 
         browser.wait(EC.presenceOf($('.table_list_container.mapping')),5000);       
         expect($('.page_title').getText()).toContain('Data Mapping & Validation');
@@ -58,28 +72,43 @@ describe('When I visit the data set page', function () {
     });
 
     it('should go to mapping Validation', function () {
-        // browser.ignoreSynchronization = true;
         // browser.sleep(5000);
-        browser.ignoreSynchronization = false;
         $$('[ng-click="remap_buildings()"]').first().click();
         browser.wait(EC.presenceOf($('.inventory-list-tab-container.ng-scope')),120000);       
         expect($('[heading="View by Property"]').isPresent()).toBe(true);
         expect($('[heading="View by Tax Lot"]').isPresent()).toBe(true);
+    });
+
+        // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = true;
+    });
+
+
+    it('should go to mapping Validation async', function () {
         var rows = element.all(by.repeater('(rowRenderIndex, row) in rowContainer.renderedRows')).filter(function (elm) {
             expect(elm.length).not.toBeLessThan(1);
             return elm;
         });
     });
 
-    it('should save mappings', function () {
+        // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = false;
+    });
+
+    it('should save mappings', function () {
         $('#save-mapping').click();
         browser.sleep(500);
         $('#confirm-mapping').click();
         browser.wait(EC.presenceOf($('.alert.alert-info.alert-dismissable')),120000);       
         expect($('.alert.alert-info.alert-dismissable').isPresent()).toBe(true);
         $$('[ng-click="goto_step(2)"]').first().click();
+    });
+
+        // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = true;
     });
 
     it('should be able to add tax lots file too', function () {
@@ -93,15 +122,19 @@ describe('When I visit the data set page', function () {
         var fileToUpload = 'seed/tests/data/protractorTaxlots.xlsx';
         var absolutePath = path.resolve(fileToUpload);
 
-        browser.ignoreSynchronization = true; //not angular based
         element.all(by.xpath('//input[@type="file"]')).first().sendKeys(absolutePath);
         var passingBar = $('.alert.alert-success');
         browser.wait(EC.presenceOf(passingBar), 120000);
         expect($('.alert.alert-success').isPresent()).toBe(true);
         expect($('[ng-click="goto_data_mapping()"]').isPresent()).toBe(true);
     });
-    it('should take me to the mapping page for taxlots', function () {
+
+        // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = false;
+    });
+
+    it('should take me to the mapping page for taxlots', function () {
         $('[ng-click="goto_data_mapping()"]').click(); 
         browser.wait(EC.presenceOf($('.table_list_container.mapping')),5000);       
         expect($('.page_title').getText()).toContain('Data Mapping & Validation');
@@ -117,8 +150,13 @@ describe('When I visit the data set page', function () {
         });
         $$('[ng-click="remap_buildings()"]').first().click();
     });
-    it('should go to mapping Validation for taxlots', function () {
+
+        // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = true;
+    });
+
+    it('should go to mapping Validation for taxlots', function () {
         browser.wait(EC.presenceOf($('.inventory-list-tab-container.ng-scope')),120000);       
         expect($('[heading="View by Property"]').isPresent()).toBe(true);
         expect($('[heading="View by Tax Lot"]').isPresent()).toBe(true);
@@ -128,8 +166,12 @@ describe('When I visit the data set page', function () {
         });
     });
 
-    it('should save mappings for taxlots', function () {
+            // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = false;
+    });
+
+    it('should save mappings for taxlots', function () {
         $('#save-mapping').click();
         browser.sleep(500);
         $('#confirm-mapping').click();

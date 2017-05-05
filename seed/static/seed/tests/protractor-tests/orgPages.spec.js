@@ -2,8 +2,13 @@
 var EC = protractor.ExpectedConditions;
 // Accounts page
 describe('When I visit the accounts page', function () {
-    it('should see my organizations', function () {
+
+        // manually
+    it ('should reset sync', function () {
         browser.ignoreSynchronization = false;
+    });
+
+    it('should see my organizations', function () {
         browser.get("/app/#/accounts");
 
         var rows = element.all(by.repeater('org in orgs_I_own'));
@@ -41,6 +46,12 @@ describe('When I visit the accounts page', function () {
     });
 });
 describe('When I visit the the parent org', function () {
+
+    // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
+    });
+
     it('should go to parent organization', function () {
         var myNewOrg = element(by.cssContainingText('.account_org.parent_org', browser.params.testOrg.parent))
             .element(by.xpath('..')).$('.account_org.right');

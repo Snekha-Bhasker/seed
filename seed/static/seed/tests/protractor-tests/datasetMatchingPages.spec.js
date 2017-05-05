@@ -3,9 +3,13 @@ var EC = protractor.ExpectedConditions;
 
 // Check dataset matching and deleting Pages:
 describe('When I go to the dataset options page', function () {
+	    // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
+    });
+
 	it('should delete a single file', function () {
 		browser.get("/app/#/data");
-		browser.ignoreSynchronization = false;
 		
 		$$('[ui-sref="dataset_detail({dataset_id: d.id})"]').first().click();
 		var rows = element.all(by.repeater('f in dataset.importfiles'));
@@ -244,7 +248,6 @@ describe('When I go to the dataset options page', function () {
 
 
 	it('should edit drag pairs', function () {
-		browser.ignoreSynchronization = true;
 		// var dragElement = $$('.pairing-data-row.grab-pairing-left').first();
 		var dragElement = element.all(by.repeater('row in newLeftData')).first();
 		var dropElement = $$('.pairing-data-row-indent').first();
@@ -267,7 +270,6 @@ describe('When I go to the dataset options page', function () {
 
 	//Delete
 	it('should delete data stuffs', function () {
-		browser.ignoreSynchronization = false;
 		browser.get("/app/#/data");
 		$$('[ui-sref="dataset_detail({dataset_id: d.id})"]').first().click();
 		$$('.delete_link').get(1).click();
