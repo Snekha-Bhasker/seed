@@ -108,9 +108,11 @@ describe('When I visit the the parent org', function () {
         
         $$('input').first().sendKeys('fake label');
         $('.input-group-btn.dropdown').click();
+        browser.sleep(2000);
         element(by.cssContainingText('.dropdown-menu.pull-right', 'orange')).click();
+        browser.sleep(2000);
         $('#btnCreateLabel').click();
-        browser.sleep(5000);
+        browser.sleep(2000);
         var myNewLabel = element(by.cssContainingText('[editable-text="label.name"]', 'fake label'))
             .element(by.xpath('..')).element(by.xpath('..'));
         expect(myNewLabel.isPresent()).toBe(true);
