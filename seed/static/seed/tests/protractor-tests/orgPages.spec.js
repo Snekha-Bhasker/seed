@@ -104,22 +104,24 @@ describe('When I visit the the parent org', function () {
             });
         }).first();
         myOptions.click();
+        browser.sleep(5000);
         
         $$('input').first().sendKeys('fake label');
         $('.input-group-btn.dropdown').click();
         element(by.cssContainingText('.dropdown-menu.pull-right', 'orange')).click();
         $('#btnCreateLabel').click();
+        browser.sleep(5000);
         var myNewLabel = element(by.cssContainingText('[editable-text="label.name"]', 'fake label'))
             .element(by.xpath('..')).element(by.xpath('..'));
-        browser.sleep(1000);
         expect(myNewLabel.isPresent()).toBe(true);
         myNewLabel.$('[ng-click="rowform.$show()"]').click();
-        browser.sleep(1000);
+        browser.sleep(2000);
         myNewLabel.$('[type="submit"]').click();
-        browser.sleep(1000);
+        browser.sleep(2000);
         myNewLabel.$('[ng-click="deleteLabel(label, $index)"]').click();
         browser.sleep(2000);
         $('.btn.btn-primary.ng-binding').click();
+        browser.sleep(5000);
         expect(myNewLabel.isPresent()).toBe(false);
     });
 

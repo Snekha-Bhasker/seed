@@ -5,24 +5,31 @@ describe('When I go to admin page', function () {
 
     // manually
     it ('should reset sync', function () {
-        browser.ignoreSynchronization = false;
+        browser.ignoreSynchronization = true;
     });
 
 
      it('should test admin pages', function () {
         browser.get("/app/#/api/swagger");
-        browser.sleep(2000);
+        browser.sleep(5000);
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/contact");
-        browser.sleep(2000);
+        browser.sleep(5000);
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/profile/security");
-        browser.sleep(2000);
+        browser.sleep(5000);
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/profile/developer");
-        browser.sleep(2000);
+        browser.sleep(5000);
         expect(browser.getTitle()).toContain('SEED Platform');
     });
+
+
+    // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
+    });
+
         
      it('should test adding profile name', function () {
         browser.get("/app/#/profile");
