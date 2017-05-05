@@ -9,8 +9,8 @@ describe('When I go to admin page', function () {
         browser.ignoreSynchronization = false;
     });
 
-    
-     it('should create new test org', function () {
+
+     it('should test admin pages', function () {
         browser.get("/app/#/api/swagger");
         expect(browser.getTitle()).toContain('SEED Platform');
         browser.get("/app/#/contact");
@@ -33,8 +33,10 @@ describe('When I go to admin page', function () {
             $('#first-name-text').sendKeys("ME");                  
         });
         $('[ng-click="reset_form()"]').click();
+    });
 
 
+     it('should create new test org', function () {
         browser.get("/app/#/profile/admin");
         // browser.sleep(5000);
         $('#org_name').sendKeys(browser.params.testOrg.parent);
