@@ -35,14 +35,14 @@ angular.module('BE.seed.controller.data_quality_admin', [])
     $scope.all_labels  = labels_payload;
     $scope.rules_type  = 'properties';
 
-    /* TEMP - split data into assumed structure for properties and taxlots.  TODO - remove once structure is in place.
+    // TEMP - split data into assumed structure for properties and taxlots.  TODO - remove once structure is in place.
     var len = data_quality_rules_payload.in_range_checking.length;
     var results = {
       properties: data_quality_rules_payload.in_range_checking.slice(0, len/2),
       taxlots:    data_quality_rules_payload.in_range_checking.slice(len/2)
     }
     data_quality_rules_payload.in_range_checking = results;
-    */
+    
 
     var loadRules = function (rules) {
       $scope.rows = {
