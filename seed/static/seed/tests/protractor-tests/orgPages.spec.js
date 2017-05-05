@@ -92,6 +92,11 @@ describe('When I visit the the parent org', function () {
         expect(myNewCycle.all(by.tagName('td')).first().$('[ng-show="!rowform.$visible"]').getText()).toEqual(browser.params.testOrg.cycle);
     });
 
+        // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = true;
+    });
+
     it('should create new label', function () {
         var myOptions = element.all(by.css('a')).filter(function (elm) {
             return elm.getText().then(function(label) { 
@@ -106,14 +111,21 @@ describe('When I visit the the parent org', function () {
         $('#btnCreateLabel').click();
         var myNewLabel = element(by.cssContainingText('[editable-text="label.name"]', 'fake label'))
             .element(by.xpath('..')).element(by.xpath('..'));
-
+        browser.sleep(1000);
         expect(myNewLabel.isPresent()).toBe(true);
         myNewLabel.$('[ng-click="rowform.$show()"]').click();
+        browser.sleep(1000);
         myNewLabel.$('[type="submit"]').click();
+        browser.sleep(1000);
         myNewLabel.$('[ng-click="deleteLabel(label, $index)"]').click();
         browser.sleep(2000);
         $('.btn.btn-primary.ng-binding').click();
         expect(myNewLabel.isPresent()).toBe(false);
+    });
+
+            // manually
+    it ('should reset sync', function () {
+        browser.ignoreSynchronization = false;
     });
 
     it('should create other sub org', function () {

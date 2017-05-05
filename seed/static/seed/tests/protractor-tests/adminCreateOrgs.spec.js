@@ -22,7 +22,9 @@ describe('When I go to admin page', function () {
         browser.get("/app/#/profile/developer");
         browser.sleep(2000);
         expect(browser.getTitle()).toContain('SEED Platform');
+    });
         
+     it('should test adding profile name', function () {
         browser.get("/app/#/profile");
         $('#first-name-text').clear().then(function(){
             $('#first-name-text').sendKeys("ME");                  
