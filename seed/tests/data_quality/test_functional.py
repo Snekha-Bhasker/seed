@@ -4,17 +4,13 @@
 :copyright (c) 2014 - 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Department of Energy) and contributors. All rights reserved.  # NOQA
 :author
 """
-import json
 import logging
 from os import path
-from unittest import skip
 
-from django.core.cache import cache
 from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from seed.cleansing.models import Cleansing
 from seed.data_importer import tasks
 from seed.data_importer.models import ImportFile, ImportRecord
 from seed.landing.models import SEEDUser as User
@@ -23,13 +19,21 @@ from seed.models import (
     ASSESSED_BS,
     PORTFOLIO_BS,
     PropertyState,
+    TaxLotState,
     Column,
+    StatusLabel,
+)
+from seed.models.data_quality import (
+    DataQualityCheck,
+    TYPE_NUMBER,
+    RULE_TYPE_CUSTOM,
+    SEVERITY_ERROR,
 )
 
 _log = logging.getLogger(__name__)
 
 
-class CleansingDataTestCoveredBuilding(TestCase):
+class DataQualityTestCoveredBuilding(TestCase):
 
     def setUp(self):
         self.user_details = {
@@ -53,118 +57,106 @@ class CleansingDataTestCoveredBuilding(TestCase):
         self.import_file.is_espm = False
         self.import_file.source_type = 'ASSESSED_RAW'
         self.import_file.file = File(
-            open(path.join(path.dirname(__file__), 'test_data',
-                           'covered-buildings-sample-with-errors.csv'))
+            open(path.join(
+                path.dirname(__file__),
+                '../data/covered-buildings-sample-with-errors.csv')
+            )
+        )
+        self.import_file.save()
+        self.import_file_mapping = path.join(
+            path.dirname(__file__),
+            "../data/covered-buildings-sample-with-errors-mappings.csv"
         )
 
-        self.import_file.save()
-
-        # tasks.save_raw_data(self.import_file.pk)
+        tasks.save_raw_data(self.import_file.id)
+        Column.create_mappings_from_file(self.import_file_mapping, self.org, self.user)
+        tasks.map_data(self.import_file.id)
 
     def test_simple_login(self):
         self.client.post(self.login_url, self.user_details, secure=True)
         self.assertTrue('_auth_user_id' in self.client.session)
 
-    @skip("Fix for new data model")
-    def test_cleanse(self):
+    def test_property_state_quality(self):
         # Import the file and run mapping
-
-        # This is silly, the mappings are backwards from what you would expect. The key is the BS field, and the
-        # value is the value in the CSV
-        # fake_mappings = {
-        #     'city': 'city',
-        #     'postal_code': 'Zip',
-        #     'gross_floor_area': 'GBA',
-        #     'building_count': 'BLDGS',
-        #     'year_built': 'AYB_YearBuilt',
-        #     'state_province': 'State',
-        #     'address_line_1': 'Address',
-        #     'owner': 'Owner',
-        #     'property_notes': 'Property Type',
-        #     'tax_lot_id': 'UBI',
-        #     'custom_id_1': 'Custom ID',
-        #     'pm_property_id': 'PM Property ID'
-        # }
-
-        tasks.save_raw_data(self.import_file.id)
-        # util.make_fake_mappings(fake_mappings, self.org) -> convert to Column.create_mappings()
-        tasks.map_data(self.import_file.id)
-
         qs = PropertyState.objects.filter(
             import_file=self.import_file,
-            source_type=ASSESSED_BS,
         ).iterator()
 
-        c = Cleansing(self.org)
-        c.cleanse(qs)
-        # print c.results
+        d = DataQualityCheck.retrieve(self.org)
+        d.check_data('PropertyState', qs)
+        self.assertEqual(len(d.results), 7)
 
-        self.assertEqual(len(c.results), 2)
-
-        result = [v for v in c.results.values() if
-                  v['address_line_1'] == '95373 E Peach Avenue']
-        if len(result) == 1:
-            result = result[0]
-        else:
-            raise RuntimeError('Non unity results')
-
+        result = d.retrieve_result_by_address('95373 E Peach Avenue')
         self.assertTrue(result['address_line_1'], '95373 E Peach Avenue')
-        self.assertTrue(result['tax_lot_id'], '10107/c6596')
         res = [{
-            'field': u'pm_property_id',
-            'formatted_field': u'PM Property ID',
-            'value': u'',
-            'message': u'PM Property ID is missing',
-            'detailed_message': u'PM Property ID is missing',
-            'severity': u'error'
+            "severity": "error",
+            "value": "",
+            "field": "pm_property_id",
+            "table_name": "PropertyState",
+            "message": "PM Property ID is null",
+            "detailed_message": "PM Property ID is null",
+            "formatted_field": "PM Property ID"
         }]
-        self.assertEqual(res, result['cleansing_results'])
+        self.assertEqual(res, result['data_quality_results'])
 
-        result = [v for v in c.results.values() if
-                  v['address_line_1'] == '120243 E True Lane']
-        if len(result) == 1:
-            result = result[0]
-        else:
-            raise RuntimeError('Non unity results')
+        result = d.retrieve_result_by_address('120243 E True Lane')
+        res = [
+            {
+                "severity": "error",
+                "value": "10000000000.0",
+                "field": "gross_floor_area",
+                "table_name": "PropertyState",
+                "message": "Gross Floor Area out of range",
+                "detailed_message": "Gross Floor Area [10000000000.0] > 7000000.0",
+                "formatted_field": "Gross Floor Area"
+            },
+            {
+                "severity": "error",
+                "value": "0",
+                "field": "year_built",
+                "table_name": "PropertyState",
+                "message": "Year Built out of range",
+                "detailed_message": "Year Built [0] < 1700",
+                "formatted_field": "Year Built"
+            },
+            {
+                "severity": "error",
+                "value": "",
+                "field": "custom_id_1",
+                "table_name": "PropertyState",
+                "message": "Custom ID 1 (Property) is null",
+                "detailed_message": "Custom ID 1 (Property) is null",
+                "formatted_field": "Custom ID 1 (Property)"
+            },
+            {
+                "severity": "error",
+                "value": "",
+                "field": "pm_property_id",
+                "table_name": "PropertyState",
+                "message": "PM Property ID is null",
+                "detailed_message": "PM Property ID is null",
+                "formatted_field": "PM Property ID"
+            }
+        ]
+        self.assertItemsEqual(res, result['data_quality_results'])
 
-        res = [{
-            'field': u'year_built',
-            'formatted_field': u'Year Built',
-            'value': 0,
-            'message': u'Year Built out of range',
-            'detailed_message': u'Year Built [0] < 1700',
-            'severity': u'error'
-        }, {
-            'field': u'gross_floor_area',
-            'formatted_field': u'Gross Floor Area',
-            'value': 10000000000.0,
-            'message': u'Gross Floor Area out of range',
-            'detailed_message': u'Gross Floor Area [10000000000.0] > 7000000.0',
-            'severity': u'error'
-        }, {
-            'field': u'custom_id_1',
-            'formatted_field': u'Custom ID 1',
-            'value': u'',
-            'message': u'Custom ID 1 is missing',
-            'detailed_message': u'Custom ID 1 is missing',
-            'severity': u'error'
-        }, {
-            'field': u'pm_property_id',
-            'formatted_field': u'PM Property ID',
-            'value': u'',
-            'message': u'PM Property ID is missing',
-            'detailed_message': u'PM Property ID is missing',
-            'severity': u'error'
-        }]
-        self.assertItemsEqual(res, result['cleansing_results'])
+        result = d.retrieve_result_by_address('1234 Peach Tree Avenue')
+        self.assertEqual(result, None)
 
-        result = [v for v in c.results.values() if
-                  v['address_line_1'] == '1234 Peach Tree Avenue']
-        self.assertEqual(len(result), 0)
-        self.assertEqual(result, [])
+    def test_tax_lot_state_quality(self):
+        # Import the file and run mapping
+        qs = TaxLotState.objects.filter(
+            import_file=self.import_file
+        ).iterator()
+
+        d = DataQualityCheck.retrieve(self.org)
+        d.check_data('TaxLotState', qs)
+        # import json
+        # print json.dumps(d.results, indent=2)
+        self.assertEqual(len(d.results), 4)
 
 
-class CleansingDataTestPM(TestCase):
+class DataQualityTestPM(TestCase):
 
     def setUp(self):
         self.user_details = {
@@ -188,15 +180,12 @@ class CleansingDataTestPM(TestCase):
         self.import_file.is_espm = True
         self.import_file.source_type = 'Portfolio Raw'
         self.import_file.file = File(
-            open(path.join(path.dirname(__file__), 'test_data',
-                           'portfolio-manager-sample-with-errors.csv'))
+            open(path.join(path.dirname(__file__),
+                           '../data/portfolio-manager-sample-with-errors.csv'))
         )
-
         self.import_file.save()
 
-        # tasks.save_raw_data(self.import_file.pk)
-
-    def test_cleanse(self):
+    def test_check(self):
         # Import the file and run mapping
 
         # Year Ending,Energy Score,Total GHG Emissions (MtCO2e),Weather Normalized Site EUI (kBtu/ft2),
@@ -260,44 +249,60 @@ class CleansingDataTestPM(TestCase):
             source_type=PORTFOLIO_BS,
         ).iterator()
 
-        c = Cleansing(self.org)
-        c.cleanse('property', qs)
-        self.assertEqual(len(c.results), 2)
+        d = DataQualityCheck.retrieve(self.org)
+        d.check_data('PropertyState', qs)
 
-        result = [v for v in c.results.values() if v['address_line_1'] == '120243 E True Lane']
-        if len(result) == 1:
-            result = result[0]
-        else:
-            raise RuntimeError('Non unity results')
+        _log.debug(d.results)
 
-        res = [{
-            'field': u'pm_property_id',
-            'formatted_field': u'PM Property ID',
-            'value': u'',
-            'message': u'PM Property ID is missing',
-            'detailed_message': u'PM Property ID is missing',
-            'severity': u'error'
-        }]
-        self.assertEqual(res, result['cleansing_results'])
+        self.assertEqual(len(d.results), 2)
 
-        result = [v for v in c.results.values() if v['address_line_1'] == '95373 E Peach Avenue']
-        if len(result) == 1:
-            result = result[0]
-        else:
-            raise RuntimeError('Non unity results')
+        result = d.retrieve_result_by_address('120243 E True Lane')
+        res = [
+            {
+                'severity': 'error',
+                'value': None,
+                'field': u'custom_id_1',
+                'table_name': u'PropertyState',
+                'message': 'Custom ID 1 (Property) is null',
+                'detailed_message': 'Custom ID 1 (Property) is null',
+                'formatted_field': 'Custom ID 1 (Property)'},
+            {
+                'severity': 'error',
+                'value': u'',
+                'field': u'pm_property_id',
+                'table_name': u'PropertyState',
+                'message': 'PM Property ID is null',
+                'detailed_message': 'PM Property ID is null',
+                'formatted_field': 'PM Property ID'
+            }
+        ]
+        self.assertEqual(res, result['data_quality_results'])
 
-        res = [{
-            'field': u'site_eui',
-            'formatted_field': u'Site EUI',
-            'value': 0.1,
-            'message': u'Site EUI out of range',
-            'detailed_message': u'Site EUI [0.1] < 10.0',
-            'severity': u'warning'
-        }]
-        self.assertEqual(res, result['cleansing_results'])
+        result = d.retrieve_result_by_address('95373 E Peach Avenue')
+        res = [
+            {
+                'field': u'site_eui',
+                'formatted_field': u'Site EUI',
+                'value': '0.1',
+                'table_name': u'PropertyState',
+                'message': u'Site EUI out of range',
+                'detailed_message': u'Site EUI [0.1] < 10.0',
+                'severity': u'warning'
+            },
+            {
+                'severity': 'error',
+                'value': None,
+                'field': u'custom_id_1',
+                'table_name': u'PropertyState',
+                'message': 'Custom ID 1 (Property) is null',
+                'detailed_message': 'Custom ID 1 (Property) is null',
+                'formatted_field': 'Custom ID 1 (Property)'
+            }
+        ]
+        self.assertEqual(res, result['data_quality_results'])
 
 
-class CleansingDataSample(TestCase):
+class DataQualitySample(TestCase):
 
     def setUp(self):
         self.user_details = {
@@ -321,11 +326,12 @@ class CleansingDataSample(TestCase):
         self.import_file.is_espm = False
         self.import_file.source_type = 'ASSESSED_RAW'
         self.import_file.file = File(
-            open(path.join(path.dirname(__file__), 'test_data', 'data-cleansing-sample.csv')))
+            open(path.join(path.dirname(__file__),
+                           '../data/data-quality-check-sample.csv')))
 
         self.import_file.save()
 
-    def test_cleanse(self):
+    def test_check(self):
         # Import the file and run mapping
 
         # This is silly, the mappings are backwards from what you would expect.
@@ -488,6 +494,14 @@ class CleansingDataSample(TestCase):
                 "from_field": u'year_ending',
                 "to_table_name": u'PropertyState',
                 "to_field": u'year_ending',
+            }, {
+                "from_field": u'extra_data_ps_alpha',
+                "to_table_name": u'PropertyState',
+                "to_field": u'extra_data_ps_alpha'
+            }, {
+                "from_field": u'extra_data_ps_float',
+                "to_table_name": u'PropertyState',
+                "to_field": u'extra_data_ps_float'
             }
         ]
 
@@ -501,49 +515,78 @@ class CleansingDataSample(TestCase):
             source_type=ASSESSED_BS,
         ).iterator()
 
-        c = Cleansing(self.org)
-        c.cleanse('property', qs)
+        # data quality check
+        d = DataQualityCheck.retrieve(self.org)
 
-        # _log.debug(c.results)
-        # This only checks to make sure the 34 errors have occurred.
-        self.assertEqual(len(c.results), 34)
+        # create some status labels for testing
+        sl_data = {'name': 'year - old or future', 'super_organization': self.org}
+        status_label, _ = StatusLabel.objects.get_or_create(**sl_data)
+        rule = d.rules.filter(field='year_built').first()
+        rule.status_label = status_label
+        rule.save()
 
-
-class CleansingViewTests(TestCase):
-
-    def setUp(self):
-        user_details = {
-            'username': 'test_user@demo.com',
-            'password': 'test_pass',
+        sl_data = {'name': 'extra data pa float error', 'super_organization': self.org}
+        status_label, _ = StatusLabel.objects.get_or_create(**sl_data)
+        new_rule = {
+            'table_name': 'PropertyState',
+            'field': 'extra_data_ps_float',
+            'data_type': TYPE_NUMBER,
+            'rule_type': RULE_TYPE_CUSTOM,
+            'min': 9999,
+            'max': 10001,
+            'severity': SEVERITY_ERROR,
+            'units': 'square feet',
+            'status_label': status_label
         }
-        self.user = User.objects.create_superuser(
-            email='test_user@demo.com', **user_details)
-        self.client.login(**user_details)
+        d.add_rule(new_rule)
 
-    def test_get_cleansing_results(self):
-        data = {'test': 'test'}
-        cache.set('cleansing_results__1', data)
-        response = self.client.get(reverse('apiv2:import_files-cleansing-results.json', args=[1]))
-        self.assertEqual(json.loads(response.content)['data'], data)
+        d.check_data('PropertyState', qs)
 
-    def test_get_progress(self):
-        data = {'status': 'success', 'progress': 85}
-        cache.set(':1:SEED:get_progress:PROG:1', data)
-        response = self.client.get(reverse('apiv2:import_files-cleansing-progress', args=[1]))
-        self.assertEqual(json.loads(response.content), 85)
+        result = d.retrieve_result_by_address('4 Myrtle Parkway')
+        res = [
+            {
+                "severity": "error",
+                "value": "27.0",
+                "field": "extra_data_ps_float",
+                "table_name": "PropertyState",
+                "message": "Extra Data Ps Float out of range",
+                "detailed_message": "Extra Data Ps Float [27.0] < 9999.0",
+                "formatted_field": "Extra Data Ps Float"
+            }, {
+                "severity": "error",
+                "value": "5.0",
+                "field": "gross_floor_area",
+                "table_name": "PropertyState",
+                "message": "Gross Floor Area out of range",
+                "detailed_message": "Gross Floor Area [5.0] < 100.0",
+                "formatted_field": "Gross Floor Area"
+            }
+        ]
+        self.assertListEqual(result['data_quality_results'], res)
 
-    def test_get_csv(self):
-        data = [{
-            'address_line_1': '',
-            'pm_property_id': '',
-            'tax_lot_id': '',
-            'custom_id_1': '',
-            'cleansing_results': [{
-                'formatted_field': '',
-                'detailed_message': '',
-                'severity': '',
-            }]
-        }]
-        cache.set('cleansing_results__1', data)
-        response = self.client.get(reverse('apiv2:import_files-cleansing-results.csv', args=[1]))
-        self.assertEqual(200, response.status_code)
+        result = d.retrieve_result_by_address('94 Oxford Hill')
+        res = [
+            {
+                "severity": "error",
+                "value": "20000.0",
+                "field": "extra_data_ps_float",
+                "table_name": "PropertyState",
+                "message": "Extra Data Ps Float out of range",
+                "detailed_message": "Extra Data Ps Float [20000.0] > 10001.0",
+                "formatted_field": "Extra Data Ps Float"
+            },
+            {
+                "severity": "error",
+                "value": "1888-01-01 08:00:00",
+                "field": "recent_sale_date",
+                "table_name": "PropertyState",
+                "message": "Recent Sale Date out of range",
+                "detailed_message": "Recent Sale Date [1888-01-01 08:00:00] < 1889-01-01 00:00:00",
+                "formatted_field": "Recent Sale Date"
+            }
+        ]
+        self.assertListEqual(result['data_quality_results'], res)
+
+        # import json
+        # from seed.utils.generic import json_serializer
+        # print json.dumps(result, default=json_serializer, indent=2)

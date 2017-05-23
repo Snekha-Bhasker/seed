@@ -157,6 +157,7 @@ paramType
 pk
 pks
 py
+pytype
 postfix
 postgres
 postgresql
@@ -165,6 +166,7 @@ Pre
 pre
 prepend
 projectbuilding
+propertystate
 py
 qqfile
 qs
@@ -188,6 +190,7 @@ serializers
 setUp
 setUpClass
 signup
+statuslabel
 str
 strftime
 subclasses
@@ -197,6 +200,7 @@ Subpackages
 subtask
 sudo
 taxlots
+taxlotstate
 tastypie
 td
 tearDown
