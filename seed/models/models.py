@@ -10,8 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_pgjson.fields import JsonField
 
+from seed.lib.json import JsonManager
 from seed.lib.superperms.orgs.models import Organization as SuperOrganization
-from seed.managers.json import JsonManager
 from seed.models.projects import (
     Project, ProjectBuilding, PROJECT_NAME_MAX_LENGTH
 )
