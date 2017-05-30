@@ -27,8 +27,8 @@ if 'test' in sys.argv:
         def __contains__(self, item):
             return True
 
-        def __getitem__(self, item):
-            return "notmigrations"
+        # def __getitem__(self, item):
+        #     return "notmigrations"
 
     MIGRATION_MODULES = DisableMigrations()
 
@@ -43,7 +43,3 @@ CACHES = {
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 STATICFILES_STORAGE = DEFAULT_FILE_STORAGE
-
-CELERY_ALWAYS_EAGER = True
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-CELERY_LOG_LEVEL = LOG_LEVELS['DEBUG']
