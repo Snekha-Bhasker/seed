@@ -27,8 +27,8 @@ if 'test' in sys.argv:
         def __contains__(self, item):
             return True
 
-        # def __getitem__(self, item):
-        #     return "notmigrations"
+        def __getitem__(self, item):
+            return "notmigrations"
 
     MIGRATION_MODULES = DisableMigrations()
 
