@@ -47,16 +47,3 @@ STATICFILES_STORAGE = DEFAULT_FILE_STORAGE
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_LOG_LEVEL = LOG_LEVELS['DEBUG']
-
-# Testing
-INSTALLED_APPS += (
-    "django_nose",
-)
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_PLUGINS = [
-    'nose_exclude.NoseExclude',
-]
-NOSE_ARGS = [
-    '--nocapture',
-    '--nologcapture',
-]
