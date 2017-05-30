@@ -364,7 +364,7 @@ class Migration(migrations.Migration):
                 ('text_match', models.CharField(max_length=200, null=True)),
                 ('severity', models.IntegerField(choices=[(0, b'error'), (1, b'warning')], default=0)),
                 ('units', models.CharField(blank=True, max_length=100)),
-                ('data_quality_check', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='rules', to='seed.DataQualityCheck')),
+                # ('data_quality_check', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='rules', to='seed.DataQualityCheck')),
             ],
         ),
         migrations.CreateModel(
