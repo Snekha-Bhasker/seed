@@ -18,7 +18,9 @@ from seed.lib.superperms.orgs.models import Organization
 from seed.models import (
     Column,
     StatusLabel,
-    PropertyView, TaxLotView)
+    PropertyView,
+    TaxLotView,
+)
 from seed.models import obj_to_dict
 from seed.utils.cache import (
     set_cache_raw, get_cache_raw
